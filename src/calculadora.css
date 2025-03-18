@@ -1,0 +1,180 @@
+:root {
+    --yellow-fuerte: #FFA33E;
+    --yellow-medio: #F7B369;
+    --yellow-suave: #F9DCBB;
+    --gris-fuerte: #232323;
+    --chocolate: #534D49;
+    --gris-medio: #A8A8A8;
+    --gris-suave: #B5B4B4;
+    --bg-tabla: #DDDDDD;
+    
+    --size-body: calc(.7em + .7vmin);
+    --size-small: calc(.5em + .7vmin);
+    --size-big: calc(.7em + .7vmin);
+    --size-reporte: calc(.4em + .7vmin);
+    box-sizing: border-box;
+ }
+
+ .section-calculadora{
+    min-width: 500px;
+    max-width: 1280px;
+    width: 90%;
+    height: 90vh;
+    min-height: 500px;
+    background-color: white;
+    padding: 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);   
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+ }
+ .container-calculadora{
+    width: 90%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    text-align: center;
+ }
+ .calc-header{
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    & .calc-header-logo{
+        height: 100%;
+        width: auto;
+        aspect-ratio: 1/1;
+        & img{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+ }
+ .calc-row-reset{
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    max-height: 40px;
+    height: auto;
+ }
+ .section-entradas{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+ }
+ .row-input{
+    width: 100%;
+    height: auto;
+    max-height: 36px;
+    display: grid;
+    grid-template-columns: 35% 65%;
+    justify-items: flex-start;
+    align-items: center;
+    & span{
+        font-weight: 600;
+    }
+ }
+ .row-radios{
+    width: 100%;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+ }
+ .row-separador{
+    width: 100%;
+    height: 1px;
+    margin: 3px 0;
+    background-color: var(--chocolate);
+    opacity: .4;
+ }
+ input[type="text"]{
+    width: 90%;
+    max-width: 500px; 
+    height: 30px;
+    padding: 2px 5px;
+    font-size: var(--size-body); 
+    border: 1px solid var(--yellow-fuerte); 
+    border-radius: var(--redondeado);
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+    font-style: "Roboto", Helvetica, Arial, sans-serif;
+}
+  
+input[type="text"]:focus{
+    border-color: var(--yellow-fuerte); 
+    box-shadow: 0 0 5px rgba(249, 220, 187, 0.5); 
+}
+input::placeholder {
+    color: #B1B1B2; 
+    opacity: 1;   
+}
+
+input:focus::placeholder {
+    color: #B1B1B2;  
+}
+ button {    
+    border-radius: var(--redondeado);
+    border: 1px solid transparent;
+    padding: 0.6em 0.6em;
+    font-size: var(--size-body);
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    
+    width: auto;
+    max-width: 200px;
+    font-size: .8em;
+    font-weight: 500;
+    color: white;
+    background-color: var(--chocolate);
+    transition: border-color 0.25s;
+  }
+  button:hover {
+    border-color: #AA9A8A;
+  }
+  button:focus,
+  button:focus-visible {
+    outline: 2px auto -webkit-focus-ring-color;
+  }
+  
+.custom-radio.Mui-checked {
+    color: var(--yellow-fuerte) !important;
+}
+
+.MuiFormControlLabel-label {
+    font-size: var(--size-body);
+    color: var(--gris-fuerte);
+}
+
+.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input:focus {
+    outline: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.custom-datepicker .MuiOutlinedInput-root {
+    width: 100%;
+  }
+  
+  .custom-datepicker .MuiOutlinedInput-notchedOutline {
+    border: none !important; /* Elimina el borde normal */
+  }
+  
+  .custom-datepicker .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border: none !important; /* Evita que aparezca al pasar el mouse */
+  }
+  
+  .custom-datepicker .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border: none !important; /* Elimina el borde azul al hacer focus */
+    box-shadow: none !important; /* Evita cualquier sombreado */
+  }
