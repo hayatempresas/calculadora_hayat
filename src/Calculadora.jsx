@@ -6,9 +6,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'; 
 import 'dayjs/locale/es';
-import { cantidadQuincenas, calcularDiasAtraso, cantidadQuincenasJubilados } from './calculos';
+import { cantidadQuincenas, calcularDiasAtraso, cantidadQuincenasJubilados, redondear, calcularDiasAtrasoJubilados, quitarCentavo} from './calculos';
 
 function Calculadora() {
   const [monto, setMonto] = useState('');
@@ -17,6 +17,7 @@ function Calculadora() {
   const [saldo, setSaldo] = useState('');
   const [esJubilado, setEsJubilado] = useState("no");
   const [omitirLetra, setOmitirLetra] = useState("no");
+  const [letraOmitida, setLetraOmitida] = useState(0);
   const montoRef = useRef(null);
 
   const [letras, setLetras] = useState('');
@@ -51,6 +52,16 @@ function Calculadora() {
   const handleJubilado = (e) => {
     const value = e.target.value;
     setEsJubilado(value)
+  }
+
+  const handleOmitirLetra = (e) => {
+    const value = e.target.value;
+    setOmitirLetra(value)
+    if(value === "si"){
+      setLetraOmitida(1)
+    }else if(value === "no"){
+      setLetraOmitida(0)
+    }
   }
 
   const handleSaldo = (e) => {
@@ -133,14 +144,14 @@ function Calculadora() {
   };
 
   const calculaPlan = (monto1, cuota1) => {
-    let montoNum = parseFloat(monto1);
     const cuotaNum = parseFloat(cuota1);
-
+    const montoNum = parseFloat(monto);
+    /*let montoNum = parseFloat(monto);
     if (montoNum % 1 !== 0) {
         montoNum = Math.floor(montoNum * 100 - 1) / 100; 
-    }
+    }*/
   
-    const cantidadLetras = Math.ceil(montoNum / cuotaNum);
+    const cantidadLetras = quitarCentavo(montoNum , cuotaNum);
     if(cantidadLetras > 80){
       setLetras('');
       setPlan('');
@@ -186,10 +197,11 @@ function Calculadora() {
 
   const calcularSaldo = () =>{
     const saldoNum = parseFloat(saldo);
-    let montoNum = parseFloat(monto);
+    const montoNum = parseFloat(monto);
+    /*let montoNum = parseFloat(monto);
     if (montoNum % 1 !== 0) {
         montoNum = Math.floor(montoNum * 100 - 1) / 100; 
-    }
+    }*/
     const cuotaNum = parseFloat(cuota);
     const cantidadLetras = Math.ceil(montoNum / cuotaNum);    
 
@@ -209,16 +221,20 @@ function Calculadora() {
         return;
       }
       const pagado = montoNum - saldoNum;
-      const letrasPagadas = Math.floor(pagado / cuotaNum);
+      console.log(`pagado de verdad ${pagado / cuotaNum}`)
+      const letrasPagadas = redondear(pagado / cuotaNum);
       let cantLetrasDebe = 0;
-      console.log(`quincenas ${quincenasTranscurridas} pagado ${pagado} letras pagadas ${letrasPagadas}`)
+      console.log(`quincenas ${quincenasTranscurridas} monto ${montoNum} saldo ${saldoNum} pagado ${pagado} letras pagadas ${letrasPagadas}`)
 
-      cantLetrasDebe =  Math.max(0, quincenasTranscurridas - letrasPagadas);
+      const remanenteMonto = Math.max(0, pagado - (cuotaNum * letrasPagadas));
+      console.log(`remanente ${remanenteMonto}`)
+
+      cantLetrasDebe =  Math.max(0, quincenasTranscurridas - letrasPagadas - letraOmitida);
       
       setLetrasPagas(letrasPagadas.toString());
       // Calcular letras en atraso
       const letrasDeberiaPagar = Math.min(quincenasTranscurridas, cantidadLetras);
-      const letrasAtrasadas = Math.max(0, letrasDeberiaPagar - letrasPagadas);
+      const letrasAtrasadas = Math.max(0, letrasDeberiaPagar - letrasPagadas - letraOmitida);
       setLetrasAtraso(letrasAtrasadas.toString());
 
       if (letrasAtrasadas > 0) {
@@ -227,16 +243,17 @@ function Calculadora() {
         if(quincenasTranscurridas > cantidadLetras){
           montoAtrasado = saldoNum;
         }else{
-          montoAtrasado = Math.min(saldoNum, (letrasAtrasadas * cuotaNum));
+          montoAtrasado = Math.min(saldoNum, ((letrasAtrasadas * cuotaNum) - remanenteMonto));
         }
         
         setMontoAtraso(montoAtrasado.toFixed(2));
         
         //const diasAtrasados = calcularDiasAtraso(cantLetrasDebe);
+
         console.log(`cantLetrasDebe ${cantLetrasDebe}`)
         let diasAtrasados = 0;
         if(esJubilado==="si"){
-          diasAtrasados = calcularDiasAtraso(cantLetrasDebe, { primero: 5, segundo: 20 });
+          diasAtrasados = calcularDiasAtrasoJubilados(cantLetrasDebe, { primero: 5, segundo: 20 });
         }else{
           diasAtrasados = calcularDiasAtraso(cantLetrasDebe, { primero: 15, segundo: 30 });
         }
@@ -260,9 +277,7 @@ function Calculadora() {
     }else if (monto && cuota && !errores.monto && !errores.cuota){
       limpiaFechas();
       calculaPlan(monto, cuota);
-    }
-    
-    
+    }   
   };
 
   useEffect(() => {
@@ -319,7 +334,7 @@ function Calculadora() {
       setPlan('');
       return;
     }
-  },[monto, fechaCredito, cuota, esJubilado])
+  },[monto, fechaCredito, cuota, esJubilado, letraOmitida])
 
   return (
     <section className="section-calculadora">
@@ -448,7 +463,7 @@ function Calculadora() {
             <span>¿Omitir última letra?</span>
             <div className="row-radios">
               <FormControl component="fieldset">
-                <RadioGroup row value={omitirLetra} onChange={(e) => setOmitirLetra(e.target.value)}>
+                <RadioGroup row value={omitirLetra} onChange={handleOmitirLetra}>
                   <FormControlLabel value="no" control={<Radio className="custom-radio" />} label="No" />
                   <FormControlLabel value="si" control={<Radio className="custom-radio" />} label="Sí" />
                 </RadioGroup>

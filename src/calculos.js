@@ -48,7 +48,8 @@ export function cantidadQuincenas(fecha1) {
 export const calcularDiasAtraso = (cantLetrasDebe, fechasCorte) => {
   if (cantLetrasDebe <= 0) return 0;
   if (!fechasCorte) return 0;
-  
+
+
   const today = dayjs();
   const todayDate = today.date();
   
@@ -106,18 +107,6 @@ export const calcularDiasAtraso = (cantLetrasDebe, fechasCorte) => {
 export function cantidadQuincenasJubilados(fecha1, fechasCorte = { primero: 5, segundo: 20 }) {
   const fechaInicio = dayjs(fecha1);
   const fechaActual = dayjs();
-  
-  /*En esta función estoy calculando mal los cuando los cortes son 5 y 20, pondré un ejemplo
-    si la fecha1 = 14 diciembre 2024, la primera fecha de inicio debería ser el 20 de diciembre por lo tanto se contaría
-    quincenasTranscurridas = 0
-    20 diciembre 2024 sería quincenasTranscurridas = 1
-    05 enero 2025 sería quincenasTranscurridas = 2
-    20 enero 2025 sería quincenasTranscurridas = 3
-    05 febrero 2025 sería quincenasTranscurridas = 4
-    20 febrero 2025 sería quincenasTranscurridas = 5
-    05 marzo 2025 sería quincenasTranscurridas = 6
-    20 marzo 2025 sería quincenasTranscurridas = 7
-  */
 
   // Inicializar contador de quincenas
   let quincenasTranscurridas = 0;
@@ -170,3 +159,98 @@ export function cantidadQuincenasJubilados(fecha1, fechasCorte = { primero: 5, s
 
   return quincenasTranscurridas;
 }
+
+export function redondear(num) {
+  return (num % 1) >= 0.9 ? Math.ceil(num) : Math.floor(num);
+}
+
+export function quitarCentavo(montoNum, cuotaNum) {
+  if (cuotaNum === 0) return 0; // Evitar división por cero
+
+  let resultado = montoNum / cuotaNum;
+  let decimal = resultado - Math.floor(resultado);
+
+  if (decimal > 0 && decimal <= 0.01) {
+    return Math.floor(resultado); // Quitar el centavo si es exactamente un centavo extra
+  } else {
+    return Math.ceil(resultado); // Redondear hacia arriba si es mayor a un centavo
+  }
+}
+
+
+
+export const calcularDiasAtrasoJubilados = (cantLetrasDebe, fechasCorte) => {
+  if (cantLetrasDebe <= 0) return 0;
+  if (!fechasCorte) return 0;
+  
+  const today = dayjs();
+  const todayDate = today.date();
+  
+  // Crear un array de fechas de corte ordenadas hacia atrás en el tiempo
+  let fechasDeCorte = [];
+  let fechaActual = today.clone();
+  let mesActual = fechaActual.month();
+  let anioActual = fechaActual.year();
+  
+  // Generar suficientes fechas de corte hacia atrás para cubrir cantLetrasDebe
+  for (let i = 0; i < cantLetrasDebe + 2; i++) {
+    // Añadir el segundo corte del mes (normalmente día 20)
+    let segundoCorte = dayjs(new Date(anioActual, mesActual, fechasCorte.segundo));
+    
+    // Verificar si el segundo corte es válido (por ejemplo, febrero podría no tener día 30)
+    if (fechasCorte.segundo > segundoCorte.daysInMonth()) {
+      segundoCorte = dayjs(new Date(anioActual, mesActual, segundoCorte.daysInMonth()));
+    }
+    
+    fechasDeCorte.push(segundoCorte);
+    
+    // Añadir el primer corte del mes (normalmente día 5)
+    fechasDeCorte.push(dayjs(new Date(anioActual, mesActual, fechasCorte.primero)));
+    
+    // Retroceder al mes anterior
+    mesActual--;
+    if (mesActual < 0) {
+      mesActual = 11; // Diciembre
+      anioActual--;
+    }
+  }
+  
+  // Ordenar fechas de más reciente a más antigua
+  fechasDeCorte.sort((a, b) => b.valueOf() - a.valueOf());
+  
+  // Filtrar fechas que sean mayores que hoy
+  fechasDeCorte = fechasDeCorte.filter(fecha => 
+    fecha.isBefore(today) || fecha.isSame(today, 'day')
+  );
+  
+  // Si hoy coincide con una fecha de corte, no contarla como atraso
+  let indiceInicial = 0;
+  if (fechasDeCorte.length > 0 && fechasDeCorte[0].date() === todayDate) {
+    indiceInicial = 1;
+    cantLetrasDebe--; // Reducimos una letra si hoy es fecha de corte
+    
+    // Si ya no quedan letras por contar, retornamos 0
+    if (cantLetrasDebe <= 0) return 0;
+  }
+  
+  // Calcular días de atraso
+  let diasTotal = 0;
+  let letrasContadas = 0;
+  
+  for (let i = indiceInicial; i < fechasDeCorte.length && letrasContadas < cantLetrasDebe; i++) {
+    let diasAtraso = 0;
+    
+    if (i === indiceInicial) {
+      // Para la primera fecha, contar días desde hoy hasta esa fecha
+      diasAtraso = today.diff(fechasDeCorte[i], 'day');
+    } else {
+      // Para el resto, contar días entre la fecha anterior y esta
+      diasAtraso = fechasDeCorte[i-1].diff(fechasDeCorte[i], 'day');
+    }
+    
+    diasTotal += diasAtraso;
+    letrasContadas++;
+  }
+  
+  return diasTotal;
+};
