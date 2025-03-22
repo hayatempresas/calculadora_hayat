@@ -467,8 +467,8 @@ function Calculadora() {
             <div className="row-radios">
               <FormControl component="fieldset">
                 <RadioGroup row value={esJubilado} onChange={handleJubilado}>
-                  <FormControlLabel value="no" control={<Radio className="custom-radio" />} label="No" />
-                  <FormControlLabel value="si" control={<Radio className="custom-radio" />} label="Sí" />
+                  <FormControlLabel value="no" control={<Radio className="custom-radio" />} label="No" className="custom-label" />
+                  <FormControlLabel value="si" control={<Radio className="custom-radio" />} label="Sí" className="custom-label" />
                 </RadioGroup>
               </FormControl>
             </div>
@@ -478,8 +478,8 @@ function Calculadora() {
             <div className="row-radios">
               <FormControl component="fieldset">
                 <RadioGroup row value={omitirLetra} onChange={handleOmitirLetra}>
-                  <FormControlLabel value="no" control={<Radio className="custom-radio" />} label="No" />
-                  <FormControlLabel value="si" control={<Radio className="custom-radio" />} label="Sí" />
+                  <FormControlLabel value="no" control={<Radio className="custom-radio" />} label="No" className="custom-label"/>
+                  <FormControlLabel value="si" control={<Radio className="custom-radio" />} label="Sí" className="custom-label"/>
                 </RadioGroup>
               </FormControl> 
             </div>

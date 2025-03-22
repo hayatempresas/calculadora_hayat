@@ -56,6 +56,7 @@
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
+    z-index: 10;
  }
  .calc-header{
     width: 100%;
@@ -296,7 +297,9 @@ input:focus::placeholder {
 .custom-radio.Mui-checked {
     color: var(--yellow-fuerte) !important;
 }
-
+.custom-label .MuiTypography-root {
+  font-size: var(--size-body);
+}
 .MuiFormControlLabel-label {
     font-size: var(--size-body);
     color: var(--gris-fuerte);
@@ -351,4 +354,24 @@ input:focus::placeholder {
       border-bottom-right-radius: 0;
       border-bottom-left-radius: 0;
    }
+  }
+
+  @media (max-height: 740px) {
+    :root {
+     
+      --size-body: calc(.7em + .7vmin);
+      --size-small: calc(.4em + .7vmin);
+      --size-chico: calc(.3em + .7vmin);
+      --size-chico2: calc(.2em + .6vmin);
+      --size-big: calc(.7em + .6vmin);
+      --size-reporte: calc(.3em + .6vmin);
+   }
+   body, span{
+    font-size: var(--size-big);
+   }
+    input[type="text"]{
+      height: 22px;
+      padding: 2px 5px;
+      font-size: var(--size-body); 
+    } 
   }
