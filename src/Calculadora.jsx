@@ -8,7 +8,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import dayjs from 'dayjs'; 
 import 'dayjs/locale/es';
-import { cantidadQuincenas, calcularDiasAtraso, cantidadQuincenasJubilados, redondear, calcularDiasAtrasoJubilados, quitarCentavo} from './calculos';
+import { cantidadQuincenas, calcularDiasAtraso, cantidadQuincenasJubilados, redondear, calcularDiasAtrasoJubilados, quitarCentavo, calcularFechaVencida, calcularFechaVencidaJubilados} from './calculos';
 
 function Calculadora() {
   const [monto, setMonto] = useState('');
@@ -24,6 +24,8 @@ function Calculadora() {
   const [plan, setPlan] = useState('');
   const [letrasPasadas, setLetrasPasadas] = useState('');
   const [estado, setEstado] = useState('');
+  const [claseEstado, setClaseEstado] = useState('');
+  const [fechaVenc, setFechaVenc] = useState('');
   const [letrasPagas, setLetrasPagas] = useState('');
   const [letrasAtraso, setLetrasAtraso] = useState('');
   const [diasAtraso, setDiasAtraso] = useState('');
@@ -150,8 +152,8 @@ function Calculadora() {
     if (montoNum % 1 !== 0) {
         montoNum = Math.floor(montoNum * 100 - 1) / 100; 
     }*/
-  
     const cantidadLetras = quitarCentavo(montoNum , cuotaNum);
+    //const cantidadLetras = quitarCentavo(montoNum , cuotaNum);
     if(cantidadLetras > 80){
       setLetras('');
       setPlan('');
@@ -166,19 +168,23 @@ function Calculadora() {
     let montoNum = parseFloat(monto);
     const cuotaNum = parseFloat(cuota);
 
-    if (montoNum % 1 !== 0) {
-        montoNum = Math.floor(montoNum * 100 - 1) / 100; 
-    }
     const cantidadLetras = Math.ceil(montoNum / cuotaNum);
     let quincenasTranscurridas = 0;
+    let fechaVencimiento = ''
     
     if(esJubilado === "no"){
       quincenasTranscurridas = cantidadQuincenas(fechaCredito);
+      const fechaVencCalc = calcularFechaVencida(fechaCredito, cantidadLetras);
+      fechaVencimiento = `Venció ${fechaVencCalc}`
+      setFechaVenc(fechaVencimiento)
     }else if (esJubilado === "si"){
       console.log("jubilado")
       quincenasTranscurridas = cantidadQuincenasJubilados(fechaCredito);
+      const fechaVencCalc = calcularFechaVencidaJubilados(fechaCredito, cantidadLetras);
+      fechaVencimiento = `Venció ${fechaVencCalc}`
+      setFechaVenc(fechaVencimiento)
     }
-    
+       
     setLetrasPasadas(quincenasTranscurridas.toString());
     
     if (quincenasTranscurridas > cantidadLetras) {
@@ -203,8 +209,8 @@ function Calculadora() {
         montoNum = Math.floor(montoNum * 100 - 1) / 100; 
     }*/
     const cuotaNum = parseFloat(cuota);
-    const cantidadLetras = Math.ceil(montoNum / cuotaNum);    
-
+    //const cantidadLetras = Math.ceil(montoNum / cuotaNum);    
+    const cantidadLetras = quitarCentavo(montoNum , cuotaNum);
 
     let quincenasTranscurridas = 0;
     
@@ -213,7 +219,6 @@ function Calculadora() {
     }else if (esJubilado === "si"){
       quincenasTranscurridas = cantidadQuincenasJubilados(fechaCredito);
     }
-
     
       //console.log(`Saldo ${saldoNum} Monto ${montoNum}`)
       if(saldoNum > montoNum){
@@ -292,6 +297,16 @@ function Calculadora() {
     };
   }, []);
 
+  useEffect(()=>{
+    if(estado==="Cuenta Vencida"){
+      setClaseEstado(" resultado-plan-vencido")
+    }else if (estado==="Plan Vigente"){
+      setClaseEstado(" resultado-plan-vigente")
+    }else{
+      setClaseEstado("")
+    }
+  },[estado])
+
   const limpiaPlanes = () =>{
       setLetras('');
       setPlan('');
@@ -353,8 +368,7 @@ function Calculadora() {
                 top: '0', 
                 left: '50%',
                 width: '70%',
-                transform: 'translateX(-50%)', 
-                transform: 'translateY(-100%)'
+                transform: 'translateX(-50%)',
               }}
             >
             <Alert onClose={handleClose} severity="warning" variant="filled" sx={{ width: '100%' }}>
@@ -494,7 +508,12 @@ function Calculadora() {
         <div className="row-resultados-des">
           <div className="resultado-des1">Estado del Crédito</div>
           <div className="resultado-des2">{letrasPasadas}</div>
-          <div className="resultado-des3">{estado}</div>
+          <div className={`resultado-des3 resultado-plan-container ${claseEstado}`}>
+            {estado}
+            {estado === "Cuenta Vencida" && (
+              <div className="resultado-plan-vencido-des">{fechaVenc}</div>
+            )}
+          </div>
         </div>        
         <div className="row-resultados-sub">
           <div className="resultado-sub1"></div>

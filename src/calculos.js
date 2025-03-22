@@ -4,6 +4,32 @@ export function cantidadQuincenas(fecha1) {
   const fechaInicio = dayjs(fecha1);
   const fechaActual = dayjs();
 
+  /* Quisiera hacer una función parecida a esta que reciba dos parámetros fecha1 y cantQuincenas
+    Teniendo en cuenta que los cortes de fecha tal como en esta función son los 15 y 30 de cada mes
+    (con la excepción de febrero que serían 29 o 28 días), y los meses que terminan en 31 igualmente se toma el 30 como fecha de corte
+    si fecha 1 es una fecha de corte, es decir un 15 o 30, comenzamos a contar a partir de la siguiente fecha de corte
+    y vas a contar el valor de cantQuincenas
+    el valor resultante es la fecha de corte en la que se termina, y ese es el valor a retornar
+    Te pondré 2 ejemplos
+    suponemos que fecha1 es 15 de enero 2024 y cantQuincenas es 6, entonces
+    15 de enero 2024 "no se cuenta, ya que es fecha de corte" contador = 0
+    30 de enero - contador = 1
+    15 de febrero - contador = 2
+    29 de febrero - contador = 3
+    15 de marzo - contador = 4
+    30 de marzo - contador = 5
+    15 de abril - contador = 6 (termina) y devuelve 15-04-2024
+
+    ahora suponemos otro ejemplo
+    fecha1 es 29 de enero 2024 y cantQuincenas es 6, entonces
+    29 de enero 2024 "no se cuenta, ya que es no es fecha de corte, busca siguiente corte- contador = 0
+    30 de enero - contador = 1
+    15 de febrero - contador = 2
+    29 de febrero - contador = 3
+    15 de marzo - contador = 4
+    30 de marzo - contador = 5
+    15 de abril - contador = 6 (termina) y devuelve 15-04-2024
+  */
   // Inicializar contador de quincenas
   let quincenasTranscurridas = 0;
   
@@ -155,7 +181,7 @@ export function cantidadQuincenasJubilados(fecha1, fechasCorte = { primero: 5, s
     } else {
       fechaIteracion = fechaIteracion.add(1, 'month').date(fechasCorte.primero);
     }
-  }
+  } 
 
   return quincenasTranscurridas;
 }
@@ -254,3 +280,85 @@ export const calcularDiasAtrasoJubilados = (cantLetrasDebe, fechasCorte) => {
   
   return diasTotal;
 };
+
+export function calcularFechaVencida(fecha1, cantQuincenas) {
+  let fechaIteracion = dayjs(fecha1);
+  let contador = 1;
+  if(cantQuincenas <= 1) return fechaIteracion.format("DD-MM-YYYY");
+
+  // Determinar la primera fecha de corte
+  const dia = fechaIteracion.date();
+  const ultimoDiaMes = fechaIteracion.endOf("month").date();
+
+  if (dia === 15) {
+    // Si es día 15, empezamos a contar desde el 30 o el último día del mes
+    fechaIteracion = fechaIteracion.date(ultimoDiaMes > 30 ? 30 : ultimoDiaMes);
+  } else if (dia >= 28 && dia <= 31) {
+    // Si es día 30 o el último día del mes, empezamos desde el 15 del próximo mes
+    fechaIteracion = fechaIteracion.add(1, "month").date(15);
+  } else if (dia < 15) {
+    // Si es antes del 15, la próxima fecha quincena es el 15 del mes actual
+    fechaIteracion = fechaIteracion.date(15);
+  } else {
+    // Si está entre 16 y 29, la siguiente quincena es el fin de mes
+    fechaIteracion = fechaIteracion.date(ultimoDiaMes > 30 ? 30 : ultimoDiaMes);
+  }
+
+  // Contar quincenas
+  while (contador < cantQuincenas) {
+    contador++;
+
+    if (fechaIteracion.date() === 15) {
+      // Si estamos en el 15, avanzamos al 30 o al último día del mes
+      const ultimoDia = fechaIteracion.endOf("month").date();
+      fechaIteracion = fechaIteracion.date(ultimoDia > 30 ? 30 : ultimoDia);
+    } else {
+      // Si estamos en el 30 o fin de mes, avanzamos al 15 del siguiente mes
+      fechaIteracion = fechaIteracion.add(1, "month").date(15);
+    }
+  }
+
+  return fechaIteracion.format("DD-MM-YYYY");
+}
+
+export function calcularFechaVencidaJubilados(fecha1, cantQuincenas) {
+  let fechaIteracion = dayjs(fecha1);
+  let contador = 1;
+
+  if (cantQuincenas <= 1) return fechaIteracion.format("DD-MM-YYYY");
+
+  // Determinar la primera fecha de corte
+  const dia = fechaIteracion.date();
+
+  if (dia === 5) {
+    // Si la fecha es un día 5, empezamos a contar desde el 20 del mes
+    fechaIteracion = fechaIteracion.date(20);
+  } else if (dia === 20) {
+    // Si la fecha es un día 20, empezamos a contar desde el 5 del siguiente mes
+    fechaIteracion = fechaIteracion.add(1, "month").date(5);
+  } else if (dia < 5) {
+    // Si es antes del 5, la próxima fecha quincena es el 5 del mes actual
+    fechaIteracion = fechaIteracion.date(5);
+  } else if (dia > 5 && dia < 20) {
+    // Si es después del 5 pero antes del 20, la siguiente fecha es el 20 del mes actual
+    fechaIteracion = fechaIteracion.date(20);
+  } else {
+    // Si es después del 20, la siguiente fecha es el 5 del siguiente mes
+    fechaIteracion = fechaIteracion.add(1, "month").date(5);
+  }
+
+  // Contar quincenas
+  while (contador < cantQuincenas) {
+    contador++;
+
+    if (fechaIteracion.date() === 5) {
+      // Si estamos en el 5, avanzamos al 20 del mismo mes
+      fechaIteracion = fechaIteracion.date(20);
+    } else {
+      // Si estamos en el 20, avanzamos al 5 del siguiente mes
+      fechaIteracion = fechaIteracion.add(1, "month").date(5);
+    }
+  }
+
+  return fechaIteracion.format("DD-MM-YYYY");
+}

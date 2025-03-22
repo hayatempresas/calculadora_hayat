@@ -11,6 +11,7 @@
     --size-body: calc(.7em + .7vmin);
     --size-small: calc(.5em + .7vmin);
     --size-chico: calc(.3em + .7vmin);
+    --size-chico2: calc(.2em + .6vmin);
     --size-big: calc(.7em + .7vmin);
     --size-reporte: calc(.4em + .7vmin);
     box-sizing: border-box;
@@ -21,7 +22,7 @@
     max-width: 1280px;
     width: 90%;
     height: 96vh;
-    min-height: 500px;
+    min-height: 740px;
     background-color: white;
     padding: 0;
     border-radius: 10px;
@@ -208,6 +209,33 @@
 .resultado-des1, .resultado-des2, .resultado-des3{
   width: 100%;
   display: flex;
+}
+.resultado-plan-container{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.resultado-plan-vigente{
+  font-weight: 700;
+  color: #3F772B;
+}
+.resultado-plan-vencido{
+  font-weight: 700;
+  color: #CC5B2F;
+  margin-top: -7px;
+}
+.resultado-plan-vencido-des{
+  font-size: var(--size-chico);
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  text-align: center;
+  transform: translateX(-50%);
+  width: 90%;
+  color: var(--gris-fuerte);
+  font-weight: 700;
 }
 
  input[type="text"]{
